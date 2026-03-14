@@ -1,0 +1,47 @@
+import cv2
+import numpy as np
+from tensorflow.keras.models import load_model
+from tensorflow.keras.applications.resnet50 import preprocess_input
+from mtcnn import MTCNN
+
+# --------------------------
+#     Load trained model
+# --------------------------
+model = load_model("trained_model.h5")
+emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
+
+# ------------------------
+#     Load input image
+# ------------------------
+image_path = "C:/Users/vvkri/Downloads/happy-image.jpg"
+img = cv2.imread(image_path)
+if img is None:
+    raise ValueError(f"Image not found at {image_path}")
+img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+# -----------------------------
+#     Detection using MTCNN
+# -----------------------------
+detector = MTCNN()
+faces = detector.detect_faces(img_rgb)
+if not faces:
+    print("No faces detected in the image.")
+else:
+    for face in faces:
+        x, y, w, h = face['box']
+        # Ensure coordinates are within image bounds
+        x, y = max(0, x), max(0, y)
+        face_img = img_rgb[y:y+h, x:x+w]
+face_resized = cv2.resize(face_img, (224, 224))
+face_batch = np.expand_dims(face_resized, axis=0)
+face_batch = preprocess_input(face_batch)  # Use the same preprocessing as during training
+
+# ------------------
+#     Prediction
+# ------------------
+pred = model.predict(face_batch, verbose=0)
+emotion = emotion_labels[np.argmax(pred)]
+confidence = np.max(pred)
+
+print("Detected Emotion ->",emotion)
+print(f"Confidence Level -> {confidence:.2f}")
