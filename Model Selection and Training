@@ -40,7 +40,7 @@ train_generator = train_datagen.flow_from_directory(
     target_size=img_size,
     color_mode='rgb',
     batch_size=batch_size,
-    class_mode='categorical',  # categorical ensures one-hot labels
+    class_mode='categorical',
     shuffle=True
 )
 test_generator = test_datagen.flow_from_directory(
@@ -48,7 +48,7 @@ test_generator = test_datagen.flow_from_directory(
     target_size=img_size,
     color_mode='rgb',
     batch_size=batch_size,
-    class_mode='categorical',  # categorical ensures one-hot labels
+    class_mode='categorical',
     shuffle=False
 )
 
@@ -77,7 +77,7 @@ output = Dense(num_classes, activation='softmax')(x)
 model = Model(inputs=base_model.input, outputs=output)
 model.compile(
     optimizer='adam',
-    loss='categorical_crossentropy',  # matches one-hot labels
+    loss='categorical_crossentropy',
     metrics=['accuracy']
 )
 
